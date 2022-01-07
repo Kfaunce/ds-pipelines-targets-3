@@ -4,25 +4,22 @@ library(targets)
 options(tidyverse.quiet = TRUE)
 tar_option_set(packages = c("tidyverse", "dataRetrieval", "urbnmapr", "rnaturalearth", "cowplot"))
 
-# Load functions needed by targets below
-source("1_fetch/src/find_oldest_sites.R")
-source("3_visualize/src/map_sites.R")
-
 # Configuration
 states <- c('WI','MN','MI')
 parameter <- c('00060')
 
-# Targets
-list(
-  # Identify oldest sites
-  tar_target(oldest_active_sites, find_oldest_sites(states, parameter)),
+# Source makefiles
+source("1_fetch.R")
+source("3_visualize.R")
 
-  # TODO: PULL SITE DATA HERE
+# Create output directories if not included
+if(!dir.exists('1_fetch/out/'))
+  dir.create(path = '1_fetch/out/')
+if(!dir.exists('2_process/out/'))
+  dir.create(path = '2_process/out/')
+if(!dir.exists('3_visualize/out/'))
+  dir.create(path = '3_visualize/out/')
 
-  # Map oldest sites
-  tar_target(
-    site_map_png,
-    map_sites("3_visualize/out/site_map.png", oldest_active_sites),
-    format = "file"
-  )
-)
+# Return the complete list of targets
+c(p1_targets_list, p3_targets_list)
+
